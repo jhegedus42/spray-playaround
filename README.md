@@ -1,4 +1,5 @@
-spray-tutorial
-==============
+spray + react
 
-Spray.io tutorial
+inspired by fbook's react tutorial and Adam Warski's spray tutorial
+
+
