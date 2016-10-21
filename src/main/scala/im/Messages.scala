@@ -1,4 +1,4 @@
-package com.softwaremill.spray
+package im
 
 import org.json4s._
 import org.json4s.JsonDSL._
