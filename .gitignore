@@ -9,6 +9,7 @@ src_managed/
 project/boot/
 project/plugins/project/
 node_modules
+build
 
 # Scala-IDE specific
 .scala_dependencies
