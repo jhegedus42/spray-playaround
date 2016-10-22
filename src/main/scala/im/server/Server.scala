@@ -25,9 +25,9 @@ object Server extends App with SimpleRoutingApp {
             }
           }
         } ~
-        pathPrefix("public" ) {
+        pathPrefix("app" ) {
             ctx => {
-              val cont=getFromDirectory("./public/")
+              val cont=getFromDirectory("./app/")
               println(ctx)
               cont(ctx)
             }
