@@ -9,20 +9,30 @@
 
 import React, {Component} from 'react';
 import {render} from 'react-dom';
-import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
+import {SortableContainer, SortableElement,SortableHandle, arrayMove} from 'react-sortable-hoc';
 import $ from 'jquery';
 
 const MASTERLISTITEM_SELECTION = "masterListItemSelection";
 
 const SortableListITEM_SELECTION = "SortableListItemSelection";
+const DragHandle = SortableHandle(() => <span>::</span>); // This can be any component you want
 
-const SortableItem = SortableElement(({value}) => <li >{value} </li>);
+const SortableItem = SortableElement(({value}) =>
+    <li > <DragHandle />{value}
+    <span onClick={console.log('pina')}>pina</span></li>);
+
+const selectItem= function(id) {
+    console.log("Selected item with id = " + id);
+    CustomEvents.notify(SortableListITEM_SELECTION, {selectedId:id});
+}
 
 const SortableList = SortableContainer(({items}) => {
+
     return (
         <ul>
             {items.map((value, index) =>
-                <SortableItem key={`item-${index}`} index={index} value={value} />
+                <SortableItem
+                              key={`item-${index}`} index={index} value={value} />
             )}
         </ul>
     );
@@ -108,7 +118,7 @@ class SortableComponent extends Component {
     render() {
         return (
             <div>
-                <SortableList items={this.state.items} onSortEnd={this.onSortEnd} />
+                <SortableList items={this.state.items} onSortEnd={this.onSortEnd} useDragHandle={true}/>
                 <hr/>
                 {console.log("log:"+SortableListITEM_SELECTION)}
                 <DetailPane eventQ="{SortableListITEM_SELECTION}"/>
