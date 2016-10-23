@@ -12,34 +12,6 @@ import {render} from 'react-dom';
 import {SortableContainer, SortableElement,SortableHandle, arrayMove} from 'react-sortable-hoc';
 import $ from 'jquery';
 
-const MASTERLISTITEM_SELECTION = "masterListItemSelection";
-
-const SortableListITEM_SELECTION = "SortableListItemSelection";
-const DragHandle = SortableHandle(() => <span>::::</span>); // This can be any component you want
-
-const selectItem= function(id) {
-    console.log("Selected item with id = " + id);
-    CustomEvents.notify(SortableListITEM_SELECTION, {selectedId:id});
-}
-const SortableItem = SortableElement(({value,index}) =>
-    <li > <DragHandle />{value}
-      <span onClick={()=>{selectItem(value); console.log('index='+index+' value='+value)}}>pina</span>
-    </li>);
-
-
-
-const SortableList = SortableContainer(({items}) => {
-
-    return (
-        <ul>
-            {items.map((value, index) =>
-                <SortableItem
-                              key={`item-${index}`} index={index} value={value} />
-            )}
-        </ul>
-    );
-});
-
 var CustomEvents = (function() {
     var _map = {};
 
@@ -65,6 +37,29 @@ var CustomEvents = (function() {
         }
     }
 })();
+
+const SortableListITEM_SELECTION = "SortableListItemSelection";
+const DragHandle = SortableHandle(() => <span>::::</span>); // This can be any component you want
+
+const selectItem= function(id) {
+    console.log("Selected item with id = " + id);
+    CustomEvents.notify(SortableListITEM_SELECTION, {selectedId:id});
+}
+const SortableItem = SortableElement(({value,index}) => <li > <DragHandle />{value}
+      <span onClick={()=>{selectItem(value); console.log('index='+index+' value='+value)}}>pina</span>
+    </li>);
+
+const SortableList = SortableContainer(({items}) => {
+
+    return (
+        <ul>
+            {items.map((value, index) =>
+                <SortableItem
+                              key={`item-${index}`} index={index} value={value} />
+            )}
+        </ul>
+    );
+});
 
 var DetailPane = React.createClass({
 
@@ -94,6 +89,8 @@ var DetailPane = React.createClass({
                 <div id="detailText"/>
 
                 <p>Selected item = {this.state.selectedId} </p>
+                <button onClick={()=>console.log("fasz")}>Click me</button>
+
             </div>
         );
     }
@@ -131,79 +128,13 @@ class SortableComponent extends Component {
 }
 
 render(<SortableComponent/>, document.body.appendChild(document.createElement('div')));
-// render(<SortableComponent />,document.getElementById('content'));
 
+// i want that the text of a selected list element changes when editing the details page
+// => add a button, when i click on it it changes the text
+// => we need to update the global state
+// => we need to find the element to be updated in the global state and call setState
+// => pass the state to selectItem function
+// => create a separate state component
 
-var MasterPane = React.createClass({
+// update a selected WHAT ?
 
-    render: function() {
-        return (
-            <div>
-                <MasterList masterListArray={masterListArray} />
-                <hr/>
-                <DetailPane eventQ={MASTERLISTITEM_SELECTION}/>
-            </div>
-        );
-    }
-});
-
-var MasterList = React.createClass({
-
-    getInitialState: function() {
-        return {selectedId: null};
-    },
-
-    selectItem: function(id) {
-        console.log("Selected item with id = " + id);
-        this.setState({selectedId:id});
-        CustomEvents.notify(MASTERLISTITEM_SELECTION, {selectedId:id});
-    },
-
-    render: function() {
-
-        var that = this;
-
-        var masterListItems = this.props.masterListArray.map(function(item) {
-            return (
-                <MasterListItem key={item.id} id={item.id}
-                                onClick={that.selectItem}
-                                selected={that.state.selectedId===item.id}>{item.name}</MasterListItem>
-            );
-        });
-
-        return (
-            <div>
-                <p>This is the master list.</p>
-                <ul>
-                    {masterListItems}
-                </ul>
-            </div>
-        );
-    }
-
-});
-
-var MasterListItem = React.createClass({
-
-    render: function() {
-
-        return (
-            <li onClick={this.props.onClick.bind(null,this.props.id)} style={{fontWeight: this.props.selected ? "bold" : "normal"}}>
-                {this.props.children}
-            </li>
-        );
-    }
-
-});
-
-
-var masterListArray = [
-
-    {"id":1, "name":"test 1"},
-    {"id":2, "name":"test 2"},
-    {"id":3, "name":"test 3"}
-];
-
-
-{/*render(<MasterPane />,document.getElementById('content'));*/}
-render(<MasterPane/>, document.body.appendChild(document.createElement('div')));
