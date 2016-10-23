@@ -15,17 +15,18 @@ import $ from 'jquery';
 const MASTERLISTITEM_SELECTION = "masterListItemSelection";
 
 const SortableListITEM_SELECTION = "SortableListItemSelection";
-const DragHandle = SortableHandle(() => <span>::</span>); // This can be any component you want
-
-const SortableItem = SortableElement(({value}) =>
-    <li > <DragHandle />{value}
-      <span onClick={()=>console.log('pina')}>pina</span>
-    </li>);
+const DragHandle = SortableHandle(() => <span>::::</span>); // This can be any component you want
 
 const selectItem= function(id) {
     console.log("Selected item with id = " + id);
     CustomEvents.notify(SortableListITEM_SELECTION, {selectedId:id});
 }
+const SortableItem = SortableElement(({value,index}) =>
+    <li > <DragHandle />{value}
+      <span onClick={()=>{selectItem(value); console.log('index='+index+' value='+value)}}>pina</span>
+    </li>);
+
+
 
 const SortableList = SortableContainer(({items}) => {
 
@@ -76,6 +77,7 @@ var DetailPane = React.createClass({
         var that = this;
         CustomEvents.subscribe(this.props.eventQ, function(data) {
             that.setState({selectedId:data.selectedId});
+            console.log("subscriber called")
         });
 
     },
@@ -91,7 +93,7 @@ var DetailPane = React.createClass({
 
                 <div id="detailText"/>
 
-                <p>Selected item = {this.state.selectedId && this.state.selectedId} </p>
+                <p>Selected item = {this.state.selectedId} </p>
             </div>
         );
     }
@@ -122,7 +124,7 @@ class SortableComponent extends Component {
                 <SortableList items={this.state.items} onSortEnd={this.onSortEnd} useDragHandle={true}/>
                 <hr/>
                 {console.log("log:"+SortableListITEM_SELECTION)}
-                <DetailPane eventQ="{SortableListITEM_SELECTION}"/>
+                <DetailPane eventQ={SortableListITEM_SELECTION}/>
             </div>
         )
     }
@@ -139,7 +141,7 @@ var MasterPane = React.createClass({
             <div>
                 <MasterList masterListArray={masterListArray} />
                 <hr/>
-                <DetailPane eventQ="{MASTERLISTITEM_SELECTION}"/>
+                <DetailPane eventQ={MASTERLISTITEM_SELECTION}/>
             </div>
         );
     }
