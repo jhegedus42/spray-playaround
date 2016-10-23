@@ -19,7 +19,8 @@ const DragHandle = SortableHandle(() => <span>::</span>); // This can be any com
 
 const SortableItem = SortableElement(({value}) =>
     <li > <DragHandle />{value}
-    <span onClick={console.log('pina')}>pina</span></li>);
+      <span onClick={()=>console.log('pina')}>pina</span>
+    </li>);
 
 const selectItem= function(id) {
     console.log("Selected item with id = " + id);
