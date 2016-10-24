@@ -1,14 +1,7 @@
-// import React from 'react';
-// import ReactDOM from 'react-dom';
-// import App from './components/App.jsx';
-//
-// ReactDOM.render(
-//   <App />,
-//   document.body.appendChild(document.createElement('div'))
-// );
-
+// @flow
 import React, {Component} from 'react';
 import {render} from 'react-dom';
+var _ = require('lodash');
 import {SortableContainer, SortableElement,SortableHandle, arrayMove} from 'react-sortable-hoc';
 import $ from 'jquery';
 
@@ -38,6 +31,8 @@ var CustomEvents = (function() {
     }
 })();
 
+const Event_UpdateSelectedID = "UpdateSelectedID";
+
 const SortableListITEM_SELECTION = "SortableListItemSelection";
 const DragHandle = SortableHandle(() => <span>::::</span>); // This can be any component you want
 
@@ -45,6 +40,7 @@ const selectItem= function(id) {
     console.log("Selected item with id = " + id);
     CustomEvents.notify(SortableListITEM_SELECTION, {selectedId:id});
 }
+
 const SortableItem = SortableElement(({value,index}) => <li > <DragHandle />{value}
       <span onClick={()=>{selectItem(value); console.log('index='+index+' value='+value)}}>pina</span>
     </li>);
@@ -70,7 +66,7 @@ var DetailPane = React.createClass({
     componentDidMount: function() {
 
         var that = this;
-        CustomEvents.subscribe(this.props.eventQ, function(data) {
+        CustomEvents.subscribe(that.props.eventQ, function(data) {
             that.setState({selectedId:data.selectedId});
             console.log("subscriber called")
         });
@@ -89,23 +85,24 @@ var DetailPane = React.createClass({
                 <div id="detailText"/>
 
                 <p>Selected item = {this.state.selectedId} </p>
-                <button onClick={()=>console.log("fasz")}>Click me</button>
+                <button onClick={
+                    ()=>CustomEvents.notify(Event_UpdateSelectedID, {selectedId:this.state.selectedId[1]}) }>
+                    Click me
+                </button>
 
             </div>
         );
     }
 });
 
+
 class SortableComponent extends Component {
-    state = {
-        items: ['Item 2', 'Item 1', 'Item 3', 'Item 4', 'Item 5', 'Item 6']
-    }
     onSortEnd = ({oldIndex, newIndex}) => {
         this.setState({
-            items: arrayMove(this.state.items, oldIndex, newIndex)
+            items: arrayMove(this.props.items, oldIndex, newIndex)
         });
 
-        var bla=this.state.items
+        var bla=this.props.items
         $.ajax({
           url: "http://localhost:3300/api/comments",
           dataType: 'json',
@@ -113,12 +110,12 @@ class SortableComponent extends Component {
           type: 'POST',
           data: JSON.stringify(bla)
         });
-        console.log('bla='+this.state.items)
+        console.log('bla='+this.props.items)
     };
     render() {
         return (
             <div>
-                <SortableList items={this.state.items} onSortEnd={this.onSortEnd} useDragHandle={true}/>
+                <SortableList items={this.props.items} onSortEnd={this.onSortEnd} useDragHandle={true}/>
                 <hr/>
                 {console.log("log:"+SortableListITEM_SELECTION)}
                 <DetailPane eventQ={SortableListITEM_SELECTION}/>
@@ -127,14 +124,44 @@ class SortableComponent extends Component {
     }
 }
 
-render(<SortableComponent/>, document.body.appendChild(document.createElement('div')));
+
+
+class State extends Component {
+
+
+    itemsV = ['Item 2', 'Item 1', 'Item 3', 'Item 4', 'Item 5', 'Item 6'];
+
+    state = {
+         items : _.zip(this.itemsV,_.range(6))
+    }
+
+    componentDidMount() {
+        var that = this;
+        CustomEvents.subscribe(Event_UpdateSelectedID, data=> {
+            that.updateWithIdx(data,'pina')
+            that.setState(this.state);
+        });
+    }
+
+    render(){
+        return (
+            <SortableComponent items={this.state.items}></SortableComponent>
+        )
+
+    }
+    updateWithIdx(el,v){
+       var i=this.state.items.findIndex(x=>x[1]==el.selectedId)
+       this.state.items[i][0]=v
+    }
+}
+
+render(<State/>, document.body.appendChild(document.createElement('div')));
 
 // i want that the text of a selected list element changes when editing the details page
 // => add a button, when i click on it it changes the text
 // => we need to update the global state
 // => we need to find the element to be updated in the global state and call setState
 // => pass the state to selectItem function
-// => create a separate state component
 
 // update a selected WHAT ?
 
